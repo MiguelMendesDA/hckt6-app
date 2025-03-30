@@ -3,36 +3,28 @@ import pickle
 import joblib
 import pandas as pd
 from flask import Flask, jsonify, request
-from peewee import ( Model, IntegerField, TextField, IntegrityError, CharField, FloatField, SqliteDatabase
-)
 import os
-from playhouse.db_url import connect
+from peewee import (SqliteDatabase, PostgresqlDatabase, Model, IntegerField,
+    FloatField, TextField, IntegrityError, CharField)
+
 from playhouse.shortcuts import model_to_dict
+from playhouse.db_url import connect
 
 ########################################
 # Configuração do banco de dados
 
-# Obtém a URL do banco de dados do Railway
-DATABASE_URL = os.environ.get('DATABASE_URL')
+#DB = SqliteDatabase('predictions.db')
+DB = connect(os.environ.get('DATABASE_URL') or 'sqlite:///predictions.db')
 
-# Configuração do Banco de Dados
-if DATABASE_URL:
-    DB = PostgresqlDatabase(DATABASE_URL, autorollback=True)  # Para PostgreSQL no Railway
-else:
-    DB = SqliteDatabase('predictions.db')  # Fallback para SQLite local
-
-# Modelo do Banco de Dados
 class Prediction(Model):
     observation_id = CharField(primary_key=True, max_length=50)
     observation = TextField()
-    prediction = FloatField()
+    prediction = IntegerField()
     true_class = IntegerField(null=True)
 
     class Meta:
         database = DB
 
-# Criar tabelas no banco de dados
-DB.connect()
 DB.create_tables([Prediction], safe=True)
 
 ########################################
@@ -261,4 +253,3 @@ def update():
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, port=5010)
-
