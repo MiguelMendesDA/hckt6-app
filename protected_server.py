@@ -5,6 +5,7 @@ import pandas as pd
 from flask import Flask, jsonify, request
 from peewee import ( Model, IntegerField, TextField, IntegrityError, CharField
 )
+import os
 from playhouse.db_url import connect
 from playhouse.shortcuts import model_to_dict
 
