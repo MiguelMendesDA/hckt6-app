@@ -3,9 +3,9 @@ import pickle
 import joblib
 import pandas as pd
 from flask import Flask, jsonify, request
-from peewee import (
-    SqliteDatabase, Model, IntegerField, TextField, IntegrityError, CharField
+from peewee import ( Model, IntegerField, TextField, IntegrityError, CharField
 )
+from playhouse.db_url import connect
 from playhouse.shortcuts import model_to_dict
 
 ########################################
