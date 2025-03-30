@@ -3,7 +3,7 @@ import pickle
 import joblib
 import pandas as pd
 from flask import Flask, jsonify, request
-from peewee import ( Model, IntegerField, TextField, IntegrityError, CharField
+from peewee import ( Model, IntegerField, TextField, IntegrityError, CharField, FloatField, SqliteDatabase
 )
 import os
 from playhouse.db_url import connect
@@ -12,17 +12,27 @@ from playhouse.shortcuts import model_to_dict
 ########################################
 # Configuração do banco de dados
 
-DB = connect(os.environ.get('DATABASE_URL') or 'sqlite:///predictions.db')
+# Obtém a URL do banco de dados do Railway
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
+# Configuração do Banco de Dados
+if DATABASE_URL:
+    DB = PostgresqlDatabase(DATABASE_URL, autorollback=True)  # Para PostgreSQL no Railway
+else:
+    DB = SqliteDatabase('predictions.db')  # Fallback para SQLite local
+
+# Modelo do Banco de Dados
 class Prediction(Model):
     observation_id = CharField(primary_key=True, max_length=50)
     observation = TextField()
-    prediction = IntegerField()
+    prediction = FloatField()
     true_class = IntegerField(null=True)
 
     class Meta:
         database = DB
 
+# Criar tabelas no banco de dados
+DB.connect()
 DB.create_tables([Prediction], safe=True)
 
 ########################################
